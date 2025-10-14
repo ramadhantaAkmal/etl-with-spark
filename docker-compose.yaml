@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:12
+    ports:
+      - 5432:5432
+    networks:
+      - spark-net
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=data_warehouse
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "root"]
+      interval: 5s
+      retries: 5
+  spark-master:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    image: myspark:latest
+    ports:
+      - '8080:8080'
+      - '7077:7077'
+    networks:
+      - spark-net
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    volumes:
+    - ./scripts:/app/scripts
+  spark-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    image: myspark:latest
+    depends_on:
+      - spark-master
+    ports:
+      - '8081:8081'
+    networks:
+      - spark-net
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+      - SPARK_USER=spark
+    volumes:
+    - ./scripts:/app/scripts
+
+networks:
+  spark-net:
+    driver: bridge

@@ -1,0 +1,12 @@
+[
+  {"user_id": 1, "name": "Andaru", "email": "andaru.andriawan@gmail.com", "join_date": "2023-05-14"},
+  {"user_id": 2, "name": "Viona", "email": "viona2025@gmail.com", "join_date": "2023-06-02"},
+  {"user_id": 3, "name": "Violet", "email": "violet@gmail.com", "join_date": "2023-07-14"},
+  {"user_id": 4, "name": "Diana", "email": "", "join_date": "2023-08-21"},
+  {"user_id": 5, "name": "Evan", "email": "evan.irawan@yahoo.co.id", "join_date": "2023-09-01"},
+  {"user_id": 6, "name": "Fiona", "email": "fiona.flora@gmail.com", "join_date": "2023-09-15"},
+  {"user_id": 7, "name": "Isa", "email": "isa201@gmail.com", "join_date": "2023-10-26"},
+  {"user_id": 8, "name": "Hannah", "email": "hannah.sari@yahoo.co.id", "join_date": "2023-11-05"},
+  {"user_id": 9, "name": "Ian", "email": "ian.kurniawan21@yahoo.co.id", "join_date": "2023-12-12"},
+  {"user_id": 10, "name": "Jenny", "email": null, "join_date": "2024-01-01"}
+]

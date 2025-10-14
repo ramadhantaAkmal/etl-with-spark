@@ -1,0 +1,5 @@
+openpyxl
+pandas
+psycopg2-binary
+python-dotenv
+ua_parser[re2]

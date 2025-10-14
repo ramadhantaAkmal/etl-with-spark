@@ -1,0 +1,23 @@
+FROM bitnami/spark:3.5 as myspark
+
+USER root
+
+RUN echo 'root:admin' | chpasswd
+
+WORKDIR /app
+
+COPY ./scripts /app/scripts
+COPY ./requirements.txt ./requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN apt-get update && \
+    apt-get install -y vim
+
+RUN apt-get install -y openssh-client openssh-server
+
+COPY ./sshd_config /etc/ssh/sshd_config
+
+RUN service ssh restart
+
+EXPOSE 22

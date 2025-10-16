@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:12
@@ -16,48 +18,55 @@ services:
       test: ["CMD", "pg_isready", "-U", "root"]
       interval: 5s
       retries: 5
+
   spark-master:
-    build:
-      context: .
-      dockerfile: Dockerfile.spark
-    image: myspark:latest
-    ports:
-      - '8080:8080'
-      - '7077:7077'
-    networks:
-      - spark-net
-    environment:
-      - SPARK_MODE=master
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
-      - SPARK_USER=spark
+    container_name: da-spark-master
+    build: .
+    image: da-spark-image
+    entrypoint: ['./entrypoint.sh', 'master']
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     volumes:
-    - ./scripts:/app/scripts
-  spark-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.spark
-    image: myspark:latest
+      - ./book_data:/opt/spark/data
+      - ./spark_apps:/opt/spark/apps
+      - spark-logs:/opt/spark/spark-events
+    env_file:
+      - .env.spark
+    ports:
+      - '9090:8080'
+      - '7077:7077'
+
+  spark-history-server:
+    container_name: da-spark-history
+    image: da-spark-image
+    entrypoint: ['./entrypoint.sh', 'history']
     depends_on:
       - spark-master
-    ports:
-      - '8081:8081'
-    networks:
-      - spark-net
-    environment:
-      - SPARK_MODE=worker
-      - SPARK_MASTER_URL=spark://spark-master:7077
-      - SPARK_WORKER_MEMORY=1G
-      - SPARK_WORKER_CORES=1
-      - SPARK_RPC_AUTHENTICATION_ENABLED=no
-      - SPARK_RPC_ENCRYPTION_ENABLED=no
-      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
-      - SPARK_SSL_ENABLED=no
-      - SPARK_USER=spark
+    env_file:
+      - .env.spark
     volumes:
-    - ./scripts:/app/scripts
+      - spark-logs:/opt/spark/spark-events
+    ports:
+      - '18080:18080'
+
+  spark-worker:
+    # container_name: da-spark-worker
+    image: da-spark-image
+    entrypoint: ['./entrypoint.sh', 'worker']
+    depends_on:
+      - spark-master
+    env_file:
+      - .env.spark
+    volumes:
+      - ./book_data:/opt/spark/data
+      - ./spark_apps:/opt/spark/apps
+      - spark-logs:/opt/spark/spark-events
+
+volumes:
+  spark-logs:
 
 networks:
   spark-net:

@@ -4,3 +4,8 @@ PRODUCTS_PATH = "data/products.csv"
 TRANSACTIONS_PATH = "data/transactions.csv"
 
 # Path output
+JDBC_POSTGRES_PATH = "jar/postgresql-42.2.23.jar"
+JDBC_POSTGRES_URL = "jdbc:postgresql://postgres:5432/data_warehouse"
+POSTGRES_USER = "root"
+POSTGRES_PASSWORD = "password"
+TABLE_NAME = "fact_sales"

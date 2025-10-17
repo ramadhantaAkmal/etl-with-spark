@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:12
     ports:
-      - 5432:5432
+      - 5434:5432
     networks:
       - spark-net
     restart: always
@@ -18,6 +18,7 @@ services:
       test: ["CMD", "pg_isready", "-U", "root"]
       interval: 5s
       retries: 5
+    
 
   spark-master:
     container_name: da-spark-master
@@ -30,7 +31,6 @@ services:
       timeout: 3s
       retries: 3
     volumes:
-      - ./book_data:/opt/spark/data
       - ./spark_apps:/opt/spark/apps
       - spark-logs:/opt/spark/spark-events
     env_file:
@@ -38,6 +38,11 @@ services:
     ports:
       - '9090:8080'
       - '7077:7077'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - spark-net
 
   spark-history-server:
     container_name: da-spark-history
@@ -51,6 +56,8 @@ services:
       - spark-logs:/opt/spark/spark-events
     ports:
       - '18080:18080'
+    networks:
+      - spark-net
 
   spark-worker:
     # container_name: da-spark-worker
@@ -61,9 +68,10 @@ services:
     env_file:
       - .env.spark
     volumes:
-      - ./book_data:/opt/spark/data
       - ./spark_apps:/opt/spark/apps
       - spark-logs:/opt/spark/spark-events
+    networks:
+      - spark-net
 
 volumes:
   spark-logs:
